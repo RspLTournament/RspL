@@ -60,7 +60,7 @@
         <input type="text" id="name" name="name" autocomplete="name" required>
       </label>
 
-      <label> Your Location 
+      <label>Your Location
         <input type="text" id="location" name="location" required>
       </label>
 
@@ -80,11 +80,23 @@
         </div>
       </fieldset>
 
+      <label>Player 1 name
+        <input type="text" id="player1" name="player1" required>
+      </label>
+
+      <label>Player 2 name
+        <input type="text" id="player2" name="player2" required>
+      </label>
+
+      <label>Player 3 name
+        <input type="text" id="player3" name="player3" required>
+      </label>
+
       <label>Message
         <textarea id="message" name="message" required></textarea>
       </label>
 
-      <button class="btn" type="submit">Send to MD ZEHAD  on WhatsApp</button>
+      <button class="btn" type="submit">Send to MD ZEHAD on WhatsApp</button>
       <p class="note">Your message opens in WhatsApp, ready to send.</p>
     </form>
   </main>
@@ -100,6 +112,9 @@
       const location = document.getElementById("location").value.trim();
       const phone = document.getElementById("phone").value.trim();
       const matchType = document.querySelector('input[name="matchType"]:checked').value;
+      const player1 = document.getElementById("player1").value.trim();
+      const player2 = document.getElementById("player2").value.trim();
+      const player3 = document.getElementById("player3").value.trim();
       const message = document.getElementById("message").value.trim();
       const text =
         "RspL Tournament\n" +
@@ -107,6 +122,9 @@
         "Location: " + location + "\n" +
         "Phone: " + phone + "\n" +
         "Match type: " + matchType + "\n" +
+        "Player 1: " + player1 + "\n" +
+        "Player 2: " + player2 + "\n" +
+        "Player 3: " + player3 + "\n" +
         "Message: " + message;
       window.open("https://wa.me/" + WHATSAPP_NUMBER + "?text=" + encodeURIComponent(text), "_blank");
     });
