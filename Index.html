@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#082a20">
+  <title>Rspl Tournament</title>
+  <link rel="icon" href="https://i.ibb.co.com/m5tmZ4PT/Messenger-creation-7-D3924-FC-F023-47-C5-844-F-A91970795523.jpg">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header>
+    <h1 class="brand">
+      RspL Tournament
+      <img src="https://i.ibb.co.com/m5tmZ4PT/Messenger-creation-7-D3924-FC-F023-47-C5-844-F-A91970795523.jpg" alt="RspL logo">
+    </h1>
+    <nav>
+      <ul>
+        <li><a href="index.html" class="active">Home</a></li>
+        <li><a href="events.html">Event</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <svg class="scene" viewBox="0 0 360 220" role="img" aria-label="Two rackets hitting a shuttlecock over a net">
+      <rect x="10" y="190" width="340" height="2" fill="#e8f5ee"/>
+      <line class="court-line" x1="180" y1="190" x2="180" y2="214"/>
+
+      <line class="net" x1="180" y1="110" x2="180" y2="190"/>
+      <line class="net-top" x1="172" y1="110" x2="188" y2="110"/>
+      <g class="net-mesh">
+        <line x1="172" y1="130" x2="188" y2="130"/>
+        <line x1="172" y1="150" x2="188" y2="150"/>
+        <line x1="172" y1="170" x2="188" y2="170"/>
+      </g>
+
+      <g transform="translate(52 190)">
+        <g class="swing-l">
+          <line class="racket-handle" x1="0" y1="0" x2="0" y2="-48"/>
+          <ellipse class="racket-head" cx="0" cy="-72" rx="17" ry="24"/>
+          <line class="racket-strings" x1="-12" y1="-72" x2="12" y2="-72"/>
+          <line class="racket-strings" x1="0" y1="-92" x2="0" y2="-52"/>
+        </g>
+      </g>
+
+      <g transform="translate(308 190)">
+        <g class="swing-r">
+          <line class="racket-handle" x1="0" y1="0" x2="0" y2="-48"/>
+          <ellipse class="racket-head" cx="0" cy="-72" rx="17" ry="24"/>
+          <line class="racket-strings" x1="-12" y1="-72" x2="12" y2="-72"/>
+          <line class="racket-strings" x1="0" y1="-92" x2="0" y2="-52"/>
+        </g>
+      </g>
+
+      <g>
+        <g>
+          <circle class="shuttle-head" cx="6" cy="0" r="4.5"/>
+          <path class="shuttle-skirt" d="M2,0 L-12,-7 L-12,7 Z"/>
+        </g>
+        <animateMotion dur="2.4s" repeatCount="indefinite" rotate="auto"
+          path="M58,118 Q180,-40 302,118 Q180,-40 58,118"/>
+      </g>
+    </svg>
+
+    <section class="hero-text">
+      <h2>RspL Badminton Tournament</h2>
+      <p>Join the matches, check the schedule and play.</p>
+      <div class="actions">
+        <a class="btn" href="events.html">See events</a>
+        <a class="btn ghost" href="contact.html">Contact us</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>&copy; RspL Tournament</footer>
+
+</body>
+</html>
