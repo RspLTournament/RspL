@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#082a20">
+  <title>Contact - Rspl Tournament</title>
+  <link rel="icon" href="https://i.ibb.co.com/m5tmZ4PT/Messenger-creation-7-D3924-FC-F023-47-C5-844-F-A91970795523.jpg">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header>
+    <h1 class="brand">
+      RspL Tournament
+      <img src="https://i.ibb.co.com/m5tmZ4PT/Messenger-creation-7-D3924-FC-F023-47-C5-844-F-A91970795523.jpg" alt="RspL logo">
+    </h1>
+    <nav>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="events.html">Event</a></li>
+        <li><a href="contact.html" class="active">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <h2>Contact</h2>
+    <p class="sub">Send a message to the organizers.</p>
+
+    <form id="contactForm">
+      <label>Your name
+        <input type="text" id="name" name="name" autocomplete="name" required>
+      </label>
+      <label>Phone number
+        <input type="tel" id="phone" name="phone" autocomplete="tel" inputmode="tel" required>
+      </label>
+      <label>Message
+        <textarea id="message" name="message" required></textarea>
+      </label>
+      <button class="btn" type="submit">Send on WhatsApp</button>
+      <p class="note">Your message opens in WhatsApp, ready to send.</p>
+    </form>
+  </main>
+
+  <footer>&copy; RspL Tournament</footer>
+
+  <script>
+    const WHATSAPP_NUMBER = "6584029857";
+
+    document.getElementById("contactForm").addEventListener("submit", function (ev) {
+      ev.preventDefault();
+      const name = document.getElementById("name").value.trim();
+      const phone = document.getElementById("phone").value.trim();
+      const message = document.getElementById("message").value.trim();
+      const text = "RspL Tournament\nName: " + name + "\nPhone: " + phone + "\nMessage: " + message;
+      window.open("https://wa.me/" + WHATSAPP_NUMBER + "?text=" + encodeURIComponent(text), "_blank");
+    });
+  </script>
+
+</body>
+</html>
