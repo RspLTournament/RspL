@@ -7,6 +7,33 @@
   <title>Contact - Rspl Tournament</title>
   <link rel="icon" href="https://i.ibb.co.com/m5tmZ4PT/Messenger-creation-7-D3924-FC-F023-47-C5-844-F-A91970795523.jpg">
   <link rel="stylesheet" href="style.css">
+  <style>
+    fieldset { border: none; display: grid; gap: 10px; }
+    legend { font-weight: 600; margin-bottom: 8px; }
+    .choices { display: flex; gap: 12px; }
+    .choice {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 13px 14px;
+      border: 2px solid var(--line);
+      border-radius: 10px;
+      background: var(--court-dark);
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .choice input {
+      width: 20px;
+      height: 20px;
+      padding: 0;
+      accent-color: var(--shuttle);
+    }
+    .choice:has(input:checked) {
+      border-color: var(--shuttle);
+      color: var(--shuttle);
+    }
+  </style>
 </head>
 <body>
 
@@ -32,21 +59,31 @@
       <label>Your name
         <input type="text" id="name" name="name" autocomplete="name" required>
       </label>
-      <label>Your Address 
-        <input type="text" id="name" name="name" autocomplete="name" required>
+
+      <label>Location name
+        <input type="text" id="location" name="location" required>
       </label>
-      
+
       <label>Phone number
         <input type="tel" id="phone" name="phone" autocomplete="tel" inputmode="tel" required>
       </label>
-      <p> Select your fee </p>
-      <input type="cheackbox" id="single" name="fee" value="100৳" >
-      <label> 100 ৳ </label>
-      <input type="cheackbox" id="double" name="fee" value="150৳">
-       <label> 150৳ </label>
+
+      <fieldset>
+        <legend>Match type</legend>
+        <div class="choices">
+          <label class="choice">
+            <input type="radio" name="matchType" value="Single" required> Single
+          </label>
+          <label class="choice">
+            <input type="radio" name="matchType" value="Double"> Double
+          </label>
+        </div>
+      </fieldset>
+
       <label>Message
         <textarea id="message" name="message" required></textarea>
       </label>
+
       <button class="btn" type="submit">Send on WhatsApp</button>
       <p class="note">Your message opens in WhatsApp, ready to send.</p>
     </form>
@@ -60,9 +97,17 @@
     document.getElementById("contactForm").addEventListener("submit", function (ev) {
       ev.preventDefault();
       const name = document.getElementById("name").value.trim();
+      const location = document.getElementById("location").value.trim();
       const phone = document.getElementById("phone").value.trim();
+      const matchType = document.querySelector('input[name="matchType"]:checked').value;
       const message = document.getElementById("message").value.trim();
-      const text = "RspL Tournament\nName: " + name + "\nPhone: " + phone + "\nMessage: " + message;
+      const text =
+        "RspL Tournament\n" +
+        "Name: " + name + "\n" +
+        "Location: " + location + "\n" +
+        "Phone: " + phone + "\n" +
+        "Match type: " + matchType + "\n" +
+        "Message: " + message;
       window.open("https://wa.me/" + WHATSAPP_NUMBER + "?text=" + encodeURIComponent(text), "_blank");
     });
   </script>
