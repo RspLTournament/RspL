@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#082a20">
+  <title>Events - Rspl Tournament</title>
+  <link rel="icon" href="https://i.ibb.co.com/m5tmZ4PT/Messenger-creation-7-D3924-FC-F023-47-C5-844-F-A91970795523.jpg">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header>
+    <h1 class="brand">
+      RspL Tournament
+      <img src="https://i.ibb.co.com/m5tmZ4PT/Messenger-creation-7-D3924-FC-F023-47-C5-844-F-A91970795523.jpg" alt="RspL logo">
+    </h1>
+    <nav>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="events.html" class="active">Event</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <h2>Events</h2>
+    <p class="sub">Upcoming matches and registration.</p>
+
+    <div id="events"></div>
+  </main>
+
+  <footer>&copy; RspL Tournament</footer>
+
+  <script>
+    /* EVENT OWNER: only edit this list.
+       Notun event dite ekta { ... } block copy kore comma diye bosao.
+       Shob muche [] khali rakhle "No events yet" dekhabe. */
+    const events = [
+      {
+        title: "RspL Badminton Singles",
+        date: "15 Nov 2026",
+        time: "4:00 PM",
+        place: "Add venue here",
+        fee: "Add fee here",
+        link: "contact.html",
+        button: "Register"
+      },
+      {
+        title: "RspL Badminton Doubles",
+        date: "22 Nov 2026",
+        time: "4:00 PM",
+        place: "Add venue here",
+        fee: "Add fee here",
+        link: "contact.html",
+        button: "Register"
+      }
+    ];
+
+    const box = document.getElementById("events");
+
+    if (events.length === 0) {
+      box.innerHTML = '<div class="empty">No events yet. Check back soon.</div>';
+    } else {
+      events.forEach(function (e) {
+        const card = document.createElement("article");
+        card.className = "event";
+        card.innerHTML =
+          "<h3></h3>" +
+          "<dl>" +
+          "<dt>Date</dt><dd></dd>" +
+          "<dt>Time</dt><dd></dd>" +
+          "<dt>Place</dt><dd></dd>" +
+          "<dt>Fee</dt><dd></dd>" +
+          "</dl>";
+        card.querySelector("h3").textContent = e.title;
+        const dd = card.querySelectorAll("dd");
+        dd[0].textContent = e.date;
+        dd[1].textContent = e.time;
+        dd[2].textContent = e.place;
+        dd[3].textContent = e.fee;
+        if (e.link) {
+          const a = document.createElement("a");
+          a.className = "btn";
+          a.href = e.link;
+          a.textContent = e.button || "Register";
+          card.appendChild(a);
+        }
+        box.appendChild(card);
+      });
+    }
+  </script>
+
+</body>
+</html>
