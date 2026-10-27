@@ -25,45 +25,7 @@
   </header>
 
   <main>
-    <svg class="scene" viewBox="0 0 360 220" role="img" aria-label="Two rackets hitting a shuttlecock over a net">
-      <rect x="10" y="190" width="340" height="2" fill="#e8f5ee"/>
-      <line class="court-line" x1="180" y1="190" x2="180" y2="214"/>
-
-      <line class="net" x1="180" y1="110" x2="180" y2="190"/>
-      <line class="net-top" x1="172" y1="110" x2="188" y2="110"/>
-      <g class="net-mesh">
-        <line x1="172" y1="130" x2="188" y2="130"/>
-        <line x1="172" y1="150" x2="188" y2="150"/>
-        <line x1="172" y1="170" x2="188" y2="170"/>
-      </g>
-
-      <g transform="translate(52 190)">
-        <g class="swing-l">
-          <line class="racket-handle" x1="0" y1="0" x2="0" y2="-48"/>
-          <ellipse class="racket-head" cx="0" cy="-72" rx="17" ry="24"/>
-          <line class="racket-strings" x1="-12" y1="-72" x2="12" y2="-72"/>
-          <line class="racket-strings" x1="0" y1="-92" x2="0" y2="-52"/>
-        </g>
-      </g>
-
-      <g transform="translate(308 190)">
-        <g class="swing-r">
-          <line class="racket-handle" x1="0" y1="0" x2="0" y2="-48"/>
-          <ellipse class="racket-head" cx="0" cy="-72" rx="17" ry="24"/>
-          <line class="racket-strings" x1="-12" y1="-72" x2="12" y2="-72"/>
-          <line class="racket-strings" x1="0" y1="-92" x2="0" y2="-52"/>
-        </g>
-      </g>
-
-      <g>
-        <g>
-          <circle class="shuttle-head" cx="6" cy="0" r="4.5"/>
-          <path class="shuttle-skirt" d="M2,0 L-12,-7 L-12,7 Z"/>
-        </g>
-        <animateMotion dur="2.4s" repeatCount="indefinite" rotate="auto"
-          path="M58,118 Q180,-40 302,118 Q180,-40 58,118"/>
-      </g>
-    </svg>
+    <canvas id="court" class="scene" width="1080" height="720" role="img" aria-label="Two badminton players rallying over the net"></canvas>
 
     <section class="hero-text">
       <h2>RspL Badminton Tournament</h2>
@@ -76,6 +38,331 @@
   </main>
 
   <footer>&copy; RspL Tournament</footer>
+
+  <script>
+  (function () {
+    var cv = document.getElementById("court");
+    var g = cv.getContext("2d");
+    var SC = 3, FL = 205, L = 36;
+
+    var TY = {
+      clear: { c: 62,  dur: 1.55, h: 88, j: 10, l: 0, cx: 18 },
+      smash: { c: 45,  dur: 0.50, h: 0,  j: 26, l: 0, cx: 18 },
+      drop:  { c: 76,  dur: 0.95, h: 34, j: 6,  l: 0, cx: 24 },
+      lift:  { c: 163, dur: 1.45, h: 92, j: 0,  l: 1, cx: 32 }
+    };
+
+    function rand(a, b) { return a + Math.random() * (b - a); }
+    function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+    function smooth(u) { u = Math.max(0, Math.min(1, u)); return u * u * (3 - 2 * u); }
+    function lerp2(p, q, u) { return [p[0] + (q[0] - p[0]) * u, p[1] + (q[1] - p[1]) * u]; }
+    function eio(u) { return smooth(u); }
+    function ein(u) { u = Math.max(0, Math.min(1, u)); return u * u; }
+    function eout(u) { u = Math.max(0, Math.min(1, u)); return 1 - (1 - u) * (1 - u); }
+
+    /* ---------- background (drawn once) ---------- */
+    var bg = document.createElement("canvas");
+    bg.width = 1080; bg.height = 720;
+    (function () {
+      var b = bg.getContext("2d");
+      b.scale(SC, SC);
+      var w = b.createLinearGradient(0, 0, 0, FL);
+      w.addColorStop(0, "#07231b"); w.addColorStop(1, "#0f4a39");
+      b.fillStyle = w; b.fillRect(0, 0, 360, FL);
+      b.fillStyle = "rgba(255,255,255,0.035)";
+      for (var x = 0; x < 360; x += 40) b.fillRect(x, 120, 1, FL - 120);
+      b.fillStyle = "rgba(0,0,0,0.18)"; b.fillRect(0, 150, 360, FL - 150);
+      b.font = "700 13px sans-serif"; b.textAlign = "center";
+      b.fillStyle = "rgba(255,210,63,0.16)";
+      b.fillText("RspL  TOURNAMENT", 180, 140);
+      [60, 180, 300].forEach(function (lx) {
+        var r = b.createRadialGradient(lx, 0, 2, lx, 0, 120);
+        r.addColorStop(0, "rgba(255,255,255,0.28)"); r.addColorStop(1, "rgba(255,255,255,0)");
+        b.fillStyle = r; b.fillRect(lx - 120, 0, 240, 130);
+        b.fillStyle = "rgba(255,255,255,0.85)"; b.fillRect(lx - 14, 0, 28, 3);
+      });
+      var f = b.createLinearGradient(0, FL, 0, 240);
+      f.addColorStop(0, "#127a5b"); f.addColorStop(1, "#07412f");
+      b.fillStyle = f; b.fillRect(0, FL, 360, 240 - FL);
+      b.strokeStyle = "#e8f5ee"; b.lineWidth = 1.6;
+      b.beginPath();
+      b.moveTo(0, FL); b.lineTo(360, FL);
+      b.moveTo(180, FL); b.lineTo(180, 240);
+      b.moveTo(60, FL); b.lineTo(26, 240);
+      b.moveTo(300, FL); b.lineTo(334, 240);
+      b.stroke();
+      // net
+      b.strokeStyle = "rgba(232,245,238,0.38)"; b.lineWidth = 0.4;
+      b.beginPath();
+      for (var y = 117; y < FL; y += 3.5) { b.moveTo(173, y); b.lineTo(187, y); }
+      for (var xx = 173; xx <= 187; xx += 3.5) { b.moveTo(xx, 115); b.lineTo(xx, FL); }
+      b.stroke();
+      b.fillStyle = "#f3faf6"; b.fillRect(171, 111, 18, 4.5);
+      b.fillStyle = "#b8c7bf"; b.fillRect(179, 115, 2, FL - 115);
+    })();
+
+    /* ---------- rally script ---------- */
+    var hits = [{ t: 0.9, side: 0, x: 112, y: TY.lift.c, type: "lift" }];
+    function extend() {
+      var p = hits[hits.length - 1];
+      var side = 1 - p.side;
+      var type = (p.type === "smash" || p.type === "drop") ? "lift" : pick(["clear", "clear", "smash", "drop", "lift"]);
+      hits.push({
+        t: p.t + TY[p.type].dur, side: side, type: type,
+        x: side ? rand(215, 270) : rand(90, 145), y: TY[type].c
+      });
+    }
+
+    function shuttleAt(i, T) {
+      var a = hits[i], b = hits[i + 1], d = TY[a.type];
+      var u = Math.max(0, Math.min(1, (T - a.t) / d.dur)), px, y;
+      if (a.type === "smash") {
+        px = 1 - Math.pow(1 - u, 1.2);
+        y = a.y + (b.y - a.y) * Math.pow(u, 1.35);
+      } else {
+        px = 1 - Math.pow(1 - u, 1.6);
+        y = a.y + (b.y - a.y) * u - 4 * d.h * u * (1 - u);
+      }
+      return { x: a.x + (b.x - a.x) * px, y: y };
+    }
+
+    /* ---------- players ---------- */
+    function find(side, T) {
+      var prev = null, next = null;
+      for (var k = 0; k < hits.length; k++) {
+        var h = hits[k];
+        if (h.side !== side) continue;
+        if (h.t <= T) prev = h; else { next = h; break; }
+      }
+      return { prev: prev, next: next };
+    }
+    function bell(h, T) {
+      if (!h) return 0;
+      var w = (T - (h.t - 0.2)) / 0.4;
+      return (w <= 0 || w >= 1) ? 0 : Math.sin(Math.PI * w);
+    }
+    function bodyX(side, h) { return h.x - (side ? -1 : 1) * TY[h.type].cx; }
+    function kf(h) {
+      var d = TY[h.type], over = d.l === 0;
+      return {
+        C: [d.cx, h.y - FL + d.j],
+        B: over ? [-20, -104] : [-16, -34],
+        F: over ? [36, -60] : [40, -80]
+      };
+    }
+    var READY = [16, -84];
+    function headPos(side, T) {
+      var f = find(side, T), prev = f.prev, next = f.next;
+      if (next) {
+        var k = kf(next), s = next.t - T;
+        if (s <= 0.3) {
+          if (s > 0.1) return lerp2(READY, k.B, eio((0.3 - s) / 0.2));
+          return lerp2(k.B, k.C, ein((0.1 - s) / 0.1));
+        }
+      }
+      if (prev) {
+        var k2 = kf(prev), e = T - prev.t;
+        if (e < 0.2) return lerp2(k2.C, k2.F, eout(e / 0.2));
+        if (e < 0.5) return lerp2(k2.F, READY, eio((e - 0.2) / 0.3));
+      }
+      return READY;
+    }
+    function playerState(side, T) {
+      var f = find(side, T), prev = f.prev, next = f.next;
+      var rest = side ? 300 : 60;
+      var a = prev ? bodyX(side, prev) : rest;
+      var b = next ? bodyX(side, next) : a;
+      var t0 = prev ? prev.t + 0.2 : 0, t1 = next ? next.t - 0.3 : t0 + 1;
+      var x = a + (b - a) * smooth((T - t0) / (t1 - t0));
+      var jp = prev ? TY[prev.type].j * bell(prev, T) : 0;
+      var jn = next ? TY[next.type].j * bell(next, T) : 0;
+      var lp = prev ? TY[prev.type].l * bell(prev, T) : 0;
+      var ln = next ? TY[next.type].l * bell(next, T) : 0;
+      return { x: x, jump: Math.max(jp, jn), lg: Math.max(lp, ln), prev: prev, next: next };
+    }
+
+    function hand(S, P) {
+      var dx = P[0] - S[0], dy = P[1] - S[1], D = Math.hypot(dx, dy) || 1, d = 30;
+      var dd = Math.min(Math.max(D, Math.abs(L - d) + 0.5), L + d - 0.5);
+      var a = (d * d - L * L + dd * dd) / (2 * dd);
+      var hh = Math.sqrt(Math.max(0, d * d - a * a));
+      var ux = dx / D, uy = dy / D, mx = S[0] + ux * a, my = S[1] + uy * a;
+      var h1 = [mx - uy * hh, my + ux * hh], h2 = [mx + uy * hh, my - ux * hh];
+      return h1[1] > h2[1] ? h1 : h2;
+    }
+    function bend(A, B, l1, l2, forward) {
+      var dx = B[0] - A[0], dy = B[1] - A[1], D0 = Math.hypot(dx, dy) || 1;
+      var D = Math.min(D0, l1 + l2 - 0.1);
+      var a = (l1 * l1 - l2 * l2 + D * D) / (2 * D);
+      var hh = Math.sqrt(Math.max(0, l1 * l1 - a * a));
+      var ux = dx / D0, uy = dy / D0, mx = A[0] + ux * a, my = A[1] + uy * a;
+      var p1 = [mx - uy * hh, my + ux * hh], p2 = [mx + uy * hh, my - ux * hh];
+      if (forward) return p1[0] > p2[0] ? p1 : p2;
+      return p1[1] > p2[1] ? p1 : p2;
+    }
+    function limb(pts, w, col) {
+      g.strokeStyle = col; g.lineWidth = w; g.lineCap = "round"; g.lineJoin = "round";
+      g.beginPath(); g.moveTo(pts[0][0], pts[0][1]);
+      for (var i = 1; i < pts.length; i++) g.lineTo(pts[i][0], pts[i][1]);
+      g.stroke();
+    }
+    function racketHead(H, P) {
+      var ang = Math.atan2(P[1] - H[1], P[0] - H[0]);
+      return { ang: ang, c: [H[0] + Math.cos(ang) * L, H[1] + Math.sin(ang) * L] };
+    }
+    function drawRacket(H, P) {
+      var r = racketHead(H, P), ca = Math.cos(r.ang), sa = Math.sin(r.ang);
+      limb([[H[0] - ca * 7, H[1] - sa * 7], [H[0] + ca * 9, H[1] + sa * 9]], 3.4, "#1b2429");
+      limb([[H[0] + ca * 9, H[1] + sa * 9], [r.c[0] - ca * 14, r.c[1] - sa * 14]], 1.8, "#cfd8dc");
+      g.save();
+      g.translate(r.c[0], r.c[1]); g.rotate(r.ang);
+      g.beginPath(); g.ellipse(0, 0, 15, 11, 0, 0, Math.PI * 2);
+      g.fillStyle = "rgba(255,255,255,0.10)"; g.fill();
+      g.save(); g.clip();
+      g.strokeStyle = "rgba(243,250,246,0.4)"; g.lineWidth = 0.5; g.beginPath();
+      for (var u = -15; u <= 15; u += 3.2) { g.moveTo(u, -11); g.lineTo(u, 11); }
+      for (var v = -11; v <= 11; v += 3.2) { g.moveTo(-15, v); g.lineTo(15, v); }
+      g.stroke(); g.restore();
+      g.strokeStyle = "#f3faf6"; g.lineWidth = 2.2;
+      g.beginPath(); g.ellipse(0, 0, 15, 11, 0, 0, Math.PI * 2); g.stroke();
+      g.restore();
+    }
+    function ghost(H, P, alpha) {
+      var r = racketHead(H, P);
+      g.save(); g.translate(r.c[0], r.c[1]); g.rotate(r.ang);
+      g.strokeStyle = "rgba(243,250,246," + alpha + ")"; g.lineWidth = 2;
+      g.beginPath(); g.ellipse(0, 0, 15, 11, 0, 0, Math.PI * 2); g.stroke();
+      g.restore();
+    }
+
+    function drawPlayer(side, T) {
+      var st = playerState(side, T), dir = side ? -1 : 1;
+      var col = side
+        ? { shirt: "#ff6b4a", skin: "#e6b08a", hair: "#17110d" }
+        : { shirt: "#ffd23f", skin: "#f0c4a0", hair: "#2b2118" };
+      var shorts = "#16222b", lg = st.lg, jump = st.jump;
+      g.fillStyle = "rgba(0,0,0," + (0.32 - 0.12 * jump / 26) + ")";
+      g.beginPath(); g.ellipse(st.x, FL + 2.5, 19 - jump * 0.25, 3.6, 0, 0, Math.PI * 2); g.fill();
+
+      g.save(); g.translate(st.x, FL - jump); g.scale(dir, 1);
+      var hipH = 44 - 16 * lg, hip = [0, -hipH];
+      var Sh = [3 + 8 * lg, -(hipH + 30)];
+      var fB = [-14 - 4 * lg, -jump * 0.45], fF = [15 + 12 * lg, -jump * 0.1];
+      var kB = bend(hip, fB, 24, 22, true), kF = bend(hip, fF, 24, 22, true);
+
+      limb([hip, kB], 9, shorts); limb([kB, fB], 5.5, col.skin);
+      g.fillStyle = "#fff"; g.beginPath(); g.ellipse(fB[0] + 3, fB[1] + 1, 7, 3.2, 0, 0, Math.PI * 2); g.fill();
+      limb([[hip[0], hip[1] - 6], [hip[0], hip[1] + 2]], 15, shorts);
+      limb([hip, kF], 9.5, shorts); limb([kF, fF], 5.8, col.skin);
+      g.fillStyle = "#fff"; g.beginPath(); g.ellipse(fF[0] + 3, fF[1] + 1, 7.5, 3.4, 0, 0, Math.PI * 2); g.fill();
+      limb([[hip[0], hip[1] - 8], Sh], 15, col.shirt);
+
+      var hc = [Sh[0] + 3, Sh[1] - 14];
+      g.fillStyle = col.skin; g.beginPath(); g.arc(hc[0], hc[1], 7.5, 0, Math.PI * 2); g.fill();
+      g.fillStyle = col.hair; g.beginPath(); g.arc(hc[0] - 0.5, hc[1] - 0.5, 8, Math.PI * 0.95, Math.PI * 2.05); g.fill();
+      g.fillStyle = "#f3faf6"; g.fillRect(hc[0] - 7.6, hc[1] - 3.6, 15.2, 2.2);
+
+      // off-hand arm (balance)
+      var oh = [Sh[0] + 13, Sh[1] - 12 + Math.sin(T * 4 + side) * 1.2];
+      limb([Sh, bend(Sh, oh, 17, 17, false), oh], 4.6, col.skin);
+
+      // racket arm
+      var P = headPos(side, T), H = hand(Sh, P), E = bend(Sh, H, 17, 17, false);
+      limb([Sh, E], 6, col.shirt);
+      limb([E, H], 4.6, col.skin);
+      var near = (st.next && st.next.t - T < 0.13) || (st.prev && T - st.prev.t < 0.07);
+      if (near) {
+        [2, 1].forEach(function (k) {
+          var Pg = headPos(side, T - 0.022 * k);
+          ghost(hand(Sh, Pg), Pg, k === 2 ? 0.12 : 0.24);
+        });
+      }
+      drawRacket(H, P);
+      g.restore();
+    }
+
+    /* ---------- shuttle ---------- */
+    var trail = [];
+    function drawShuttle(x, y, ang) {
+      g.fillStyle = "rgba(0,0,0,0.25)";
+      g.beginPath(); g.ellipse(x, FL + 11, 6, 1.5, 0, 0, Math.PI * 2); g.fill();
+      g.save(); g.translate(x, y); g.rotate(ang); g.scale(1.15, 1.15);
+      g.beginPath(); g.moveTo(-2, -2.4); g.lineTo(-14, -6.8); g.lineTo(-14, 6.8); g.lineTo(-2, 2.4); g.closePath();
+      g.fillStyle = "rgba(250,253,251,0.95)"; g.fill();
+      g.strokeStyle = "rgba(120,150,138,0.8)"; g.lineWidth = 0.5; g.beginPath();
+      for (var k = -2; k <= 2; k++) { g.moveTo(-2, k * 0.9); g.lineTo(-14, k * 2.6); }
+      g.stroke();
+      g.strokeStyle = "rgba(190,210,200,0.9)"; g.lineWidth = 0.9;
+      g.beginPath(); g.moveTo(-9, -4.6); g.lineTo(-9, 4.6); g.stroke();
+      g.fillStyle = "#f2d9a6"; g.strokeStyle = "#c2a164"; g.lineWidth = 0.6;
+      g.beginPath(); g.arc(0, 0, 3.1, 0, Math.PI * 2); g.fill(); g.stroke();
+      g.restore();
+    }
+
+    /* ---------- frame ---------- */
+    function render(T) {
+      while (hits[hits.length - 1].t < T + 3) extend();
+      while (hits.length > 6 && hits[3].t < T) hits.shift();
+
+      g.setTransform(SC, 0, 0, SC, 0, 0);
+      g.clearRect(0, 0, 360, 240);
+      g.drawImage(bg, 0, 0, 360, 240);
+
+      drawPlayer(0, T);
+      drawPlayer(1, T);
+
+      var i = -1;
+      for (var k = 0; k < hits.length - 1; k++) if (hits[k].t <= T) i = k;
+      var sx, sy, ang;
+      if (i < 0) {
+        sx = hits[0].x; sy = hits[0].y; ang = -1.0; trail.length = 0;
+      } else {
+        var p0 = shuttleAt(i, T), p1 = shuttleAt(i, T + 0.02);
+        sx = p0.x; sy = p0.y; ang = Math.atan2(p1.y - p0.y, p1.x - p0.x);
+        trail.push({ x: sx, y: sy, t: T });
+      }
+      while (trail.length && trail[0].t < T - 0.12) trail.shift();
+      for (var q = 1; q < trail.length; q++) {
+        var al = (1 - (T - trail[q].t) / 0.12) * 0.35;
+        g.strokeStyle = "rgba(255,255,255," + al + ")"; g.lineWidth = 2.2; g.lineCap = "round";
+        g.beginPath(); g.moveTo(trail[q - 1].x, trail[q - 1].y); g.lineTo(trail[q].x, trail[q].y); g.stroke();
+      }
+      drawShuttle(sx, sy, ang);
+
+      if (i >= 0) {
+        var e = T - hits[i].t;
+        if (e < 0.14) {
+          var f = e / 0.14;
+          g.strokeStyle = "rgba(255,255,255," + (0.7 * (1 - f)) + ")"; g.lineWidth = 1.2;
+          g.beginPath(); g.arc(hits[i].x, hits[i].y, 4 + 14 * f, 0, Math.PI * 2); g.stroke();
+        }
+      }
+    }
+
+    function start() {
+      var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      render(reduce ? 1.9 : 0.5);
+      if (reduce) return;
+      var last = performance.now(), T = 0.5;
+      function frame(now) {
+        var dt = Math.min((now - last) / 1000, 0.05);
+        if (!(dt >= 0)) dt = 0.016;
+        last = now; T += dt;
+        render(T);
+        requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+    }
+    try {
+      start();
+    } catch (err) {
+      g.setTransform(1, 0, 0, 1, 0, 0);
+      g.fillStyle = "#fff";
+      g.font = "28px sans-serif";
+      g.fillText("Error: " + err.message, 20, 60);
+    }
+  })();
+  </script>
 
 </body>
 </html>
